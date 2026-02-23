@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sensing & AI System — Pre-Analytical Blood Sample Sorting Robot</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0f1a;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: #1e2d45;
+    --accent: #00c9a7;
+    --accent2: #3b82f6;
+    --accent3: #f59e0b;
+    --accent4: #ef4444;
+    --text: #e2e8f0;
+    --text-dim: #7b8fa6;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #0d1b2a 0%, #0b2240 50%, #0d1b2a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(0,201,167,0.08) 0%, transparent 70%);
+    top: -150px; right: 100px;
+    border-radius: 50%;
+  }
+  .header-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--white);
+    max-width: 700px;
+    line-height: 1.3;
+  }
+  header h1 span { color: var(--accent); }
+  .header-sub {
+    margin-top: 10px;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+  .badge-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .badge {
+    background: rgba(0,201,167,0.1);
+    border: 1px solid rgba(0,201,167,0.3);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+  }
+  .badge.blue { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: var(--accent2); }
+  .badge.yellow { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: var(--accent3); }
+
+  /* MAIN LAYOUT */
+  main { max-width: 1100px; margin: 0 auto; padding: 50px 40px; }
+
+  /* SECTION HEADERS */
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 20px;
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 24px 0 10px;
+  }
+  p { color: var(--text); margin-bottom: 14px; }
+
+  /* INFO CARDS */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin: 28px 0;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .card.yellow::before { background: linear-gradient(90deg, var(--accent3), #f97316); }
+  .card.red::before { background: linear-gradient(90deg, var(--accent4), #ec4899); }
+  .card-icon {
+    font-size: 26px;
+    margin-bottom: 12px;
+  }
+  .card h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+  .card p { font-size: 13.5px; color: var(--text-dim); margin: 0; }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 50px 0;
+  }
+
+  /* HSV TABLE */
+  .table-wrap { overflow-x: auto; margin: 20px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead tr {
+    background: var(--surface2);
+  }
+  thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    border-bottom: 2px solid var(--border);
+    text-transform: uppercase;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+  tbody tr:hover { background: var(--surface); }
+  tbody td {
+    padding: 11px 16px;
+    color: var(--text);
+    vertical-align: middle;
+  }
+  .color-swatch {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+
+  /* ─────────────────────────────────────────── */
+  /* FLOWCHART                                   */
+  /* ─────────────────────────────────────────── */
+  .flowchart-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 30px;
+    margin: 30px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .flowchart-section::after {
+    content: 'SENSING & AI SYSTEM FLOWCHART';
+    position: absolute;
+    top: 18px; right: 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    opacity: 0.5;
+  }
+
+  .fc-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* Node styles */
+  .fc-node {
+    position: relative;
+    text-align: center;
+    padding: 13px 22px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 500;
+    min-width: 220px;
+    max-width: 320px;
+    cursor: default;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .fc-node:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .fc-node.start {
+    background: linear-gradient(135deg, #064e3b, #065f46);
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    border-radius: 30px;
+  }
+  .fc-node.process {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    color: var(--white);
+  }
+  .fc-node.process.highlight {
+    border-color: rgba(59,130,246,0.5);
+    background: linear-gradient(135deg, #1e2d45, #1a2d4a);
+  }
+  .fc-node.decision {
+    background: linear-gradient(135deg, #1c1a00, #2d2600);
+    border: 1.5px solid var(--accent3);
+    color: var(--accent3);
+    clip-path: polygon(15px 0%, calc(100% - 15px) 0%, 100% 50%, calc(100% - 15px) 100%, 15px 100%, 0% 50%);
+    padding: 13px 35px;
+    border-radius: 0;
+    clip-path: none;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .fc-node.action {
+    background: linear-gradient(135deg, #1a1030, #1e1240);
+    border: 1.5px solid rgba(139,92,246,0.5);
+    color: #c4b5fd;
+  }
+  .fc-node.error {
+    background: linear-gradient(135deg, #2d0d0d, #3d1111);
+    border: 1.5px solid rgba(239,68,68,0.5);
+    color: #fca5a5;
+  }
+  .fc-node.output {
+    background: linear-gradient(135deg, #1c3a1c, #1f4a1f);
+    border: 1.5px solid rgba(34,197,94,0.5);
+    color: #86efac;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+  .fc-node.end {
+    background: linear-gradient(135deg, #3b0764, #4c1d95);
+    border: 1.5px solid rgba(167,139,250,0.6);
+    color: #ddd6fe;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    border-radius: 30px;
+  }
+
+  /* label on node */
+  .fc-node .sublabel {
+    font-size: 11px;
+    opacity: 0.65;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.5px;
+    margin-top: 3px;
+  }
+
+  /* Arrow */
+  .fc-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    position: relative;
+  }
+  .fc-arrow-line {
+    width: 2px;
+    height: 28px;
+    background: linear-gradient(to bottom, var(--accent), rgba(0,201,167,0.3));
+  }
+  .fc-arrow-head {
+    width: 0; height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 9px solid rgba(0,201,167,0.6);
+  }
+  .fc-arrow-label {
+    position: absolute;
+    left: 14px;
+    top: 6px;
+    font-size: 11px;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    white-space: nowrap;
+    background: var(--bg);
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,201,167,0.2);
+  }
+  .fc-arrow-label.no { color: var(--accent4); border-color: rgba(239,68,68,0.3); }
+  .fc-arrow-label.yes { color: #86efac; border-color: rgba(34,197,94,0.3); }
+
+  /* Decision branch */
+  .fc-branch {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 60px;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .fc-branch-arm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .fc-branch-arm .arm-label {
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 6px;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .arm-label.yes { color: #86efac; background: rgba(34,197,94,0.1); }
+  .arm-label.no  { color: #fca5a5; background: rgba(239,68,68,0.1); }
+
+  .fc-branch-hline {
+    position: absolute;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(245,158,11,0.4), rgba(245,158,11,0.4));
+    top: 0;
+  }
+
+  /* step annotation */
+  .step-annotation {
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    color: var(--text-dim);
+    position: absolute;
+    right: -110px;
+    top: 50%;
+    transform: translateY(-50%);
+    letter-spacing: 0.5px;
+    background: rgba(30,45,69,0.8);
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    border-left: 2px solid var(--border);
+  }
+
+  .fc-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* ─────────────────────────────────────────── */
+  /* CODE BLOCK */
+  /* ─────────────────────────────────────────── */
+  .code-block {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin: 16px 0;
+    position: relative;
+  }
+  .code-block::before {
+    content: 'PYTHON · PSEUDOCODE';
+    position: absolute;
+    top: 10px; right: 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+  code {
+    font-family: 'Space Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: #e2e8f0;
+    display: block;
+    white-space: pre;
+  }
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .cm { color: #546e7a; font-style: italic; }
+  .num { color: #f78c6c; }
+  .var { color: #ffcb6b; }
+
+  /* REFERENCES */
+  .ref-list {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .ref-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 13.5px;
+  }
+  .ref-item .ref-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+  .ref-item a {
+    color: var(--accent2);
+    text-decoration: none;
+    font-size: 12px;
+    display: block;
+    margin-top: 4px;
+    word-break: break-all;
+    opacity: 0.75;
+  }
+  .ref-item a:hover { opacity: 1; text-decoration: underline; }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(0,201,167,0.05), rgba(59,130,246,0.05));
+    border: 1px solid rgba(0,201,167,0.2);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+  .highlight-box strong { color: var(--accent); }
+
+  /* STEP LIST */
+  .step-list {
+    counter-reset: step;
+    list-style: none;
+    margin: 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .step-list li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    counter-increment: step;
+  }
+  .step-list li::before {
+    content: counter(step, decimal-leading-zero);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    background: rgba(0,201,167,0.1);
+    border: 1px solid rgba(0,201,167,0.3);
+    min-width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-list li .step-content { flex: 1; }
+  .step-list li .step-title {
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 3px;
+  }
+  .step-list li .step-desc {
+    font-size: 13.5px;
+    color: var(--text-dim);
+  }
+
+  /* FOOTER */
+  footer {
+    margin-top: 60px;
+    padding: 28px 40px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    color: var(--text-dim);
+    font-size: 12.5px;
+    font-family: 'Space Mono', monospace;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-tag">Group E · Robotika Medis</div>
+  <h1>Sensing & <span>AI System</span><br>Pre-Analytical Blood Sample Sorting Robot</h1>
+  <div class="header-sub">Disusun oleh Alicia Kiyoumi Bastian (2306168952) — Sensing & AI Specialist</div>
+  <div class="badge-row">
+    <span class="badge">Color Detection · HSV</span>
+    <span class="badge blue">Barcode Verification</span>
+    <span class="badge yellow">Control Flow</span>
+    <span class="badge">Safety & Error Handling</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- ─── SECTION 1: OVERVIEW ─── -->
+  <div class="section-title">Section 01</div>
+  <h2>Peran Sensing & AI System dalam Robot</h2>
+  <p>
+    Fase pre-analitik merupakan tahap paling kritis dalam proses laboratorium — 
+    penelitian menunjukkan bahwa <strong>46–68% error pada pemeriksaan laboratorium berasal dari fase pre-analitik</strong> [1], 
+    terutama akibat sorting manual yang salah. Sistem Sensing & AI bertugas sebagai 
+    "otak" robot: membaca dunia fisik (tabung darah), menginterpretasikan informasi tersebut, 
+    dan mengambil keputusan sorting secara otomatis dan akurat.
+  </p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">👁️</div>
+      <h4>Vision System</h4>
+      <p>RGB Camera menangkap gambar cap tabung darah. Data gambar masuk ke pipeline OpenCV untuk preprocessing dan deteksi warna.</p>
+    </div>
+    <div class="card yellow">
+      <div class="card-icon">🎨</div>
+      <h4>Color Classification</h4>
+      <p>Konversi BGR → HSV, lalu thresholding per warna. Hasilnya menentukan jenis tabung (EDTA, Citrate, Serum, dll).</p>
+    </div>
+    <div class="card red">
+      <div class="card-icon">📡</div>
+      <h4>Barcode Verification</h4>
+      <p>Scanner memverifikasi identitas pasien dan memastikan kesesuaian tabung dengan order pemeriksaan.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔒</div>
+      <h4>Safety & Error Handling</h4>
+      <p>Deteksi error: warna tidak dikenal, barcode tidak valid, atau limit switch aktif. Robot berhenti dan memberi alert.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ─── SECTION 2: HSV COLOR DETECTION ─── -->
+  <div class="section-title">Section 02</div>
+  <h2>A. Deteksi Warna Cap — Pipeline HSV</h2>
+
+  <p>
+    Model warna <strong>HSV (Hue, Saturation, Value)</strong> dipilih karena memisahkan 
+    informasi warna (Hue) dari kecerahan (Value) dan intensitas (Saturation). 
+    Hal ini membuat deteksi warna jauh lebih robust terhadap perubahan kondisi pencahayaan 
+    dibandingkan model RGB [2, 3]. Penelitian oleh Petrov et al. (2023) di MDPI 
+    mengkonfirmasi bahwa HSV + OpenCV adalah pendekatan yang efektif 
+    untuk mendeteksi warna pada tabung darah dalam sistem robotik otomatis [2].
+  </p>
+
+  <div class="highlight-box">
+    <strong>Justifikasi Ilmiah:</strong> Dalam paper MDPI "Robotic System for Blood Serum Aliquoting Based on a Neural Network Model of Machine Vision" (2023), algoritma berbasis HSV pada OpenCV berhasil mengidentifikasi batas warna liquid dalam tabung secara akurat di bawah kondisi lighting yang bervariasi. Ini mendukung penggunaan HSV untuk klasifikasi warna cap tabung darah.
+  </div>
+
+  <h3>Pipeline Pemrosesan Gambar</h3>
+  <ol class="step-list">
+    <li>
+      <div class="step-content">
+        <div class="step-title">Frame Acquisition</div>
+        <div class="step-desc">Camera RGB menangkap frame real-time dari zona deteksi. Library OpenCV digunakan: <code style="display:inline; font-size:12px; background:#1a2236; padding:1px 6px; border-radius:4px;">cv2.VideoCapture()</code></div>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <div class="step-title">Preprocessing</div>
+        <div class="step-desc">Gaussian blur untuk noise reduction, crop ke Region of Interest (ROI) yaitu area cap tabung. Ini meningkatkan akurasi dan mereduksi false positive.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <div class="step-title">Color Space Conversion: BGR → HSV</div>
+        <div class="step-desc"><code style="display:inline; font-size:12px; background:#1a2236; padding:1px 6px; border-radius:4px;">hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)</code> — memisahkan informasi warna dari kecerahan.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <div class="step-title">HSV Thresholding per Warna</div>
+        <div class="step-desc">Setiap warna cap memiliki range HSV yang didefinisikan. Fungsi <code style="display:inline; font-size:12px; background:#1a2236; padding:1px 6px; border-radius:4px;">cv2.inRange()</code> membuat binary mask untuk setiap warna.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <div class="step-title">Morphological Operations</div>
+        <div class="step-desc">Dilation dan erosion untuk menghilangkan noise kecil dan memperkuat area deteksi yang benar.</div>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <div class="step-title">Classification Output</div>
+        <div class="step-desc">Mask dengan pixel terbanyak menentukan label warna. Output: string label (e.g., "YELLOW", "PURPLE") dikirim ke modul keputusan.</div>
+      </div>
+    </li>
+  </ol>
+
+  <h3>HSV Range Values per Warna Cap</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Warna Cap</th>
+          <th>Jenis Tabung</th>
+          <th>HSV Lower Bound [H, S, V]</th>
+          <th>HSV Upper Bound [H, S, V]</th>
+          <th>Pemeriksaan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="color-swatch" style="background:#f5c518;"></span>Kuning</td>
+          <td>Kultur darah</td>
+          <td>[20, 100, 100]</td>
+          <td>[35, 255, 255]</td>
+          <td>Kultur</td>
+        </tr>
+        <tr>
+          <td><span class="color-swatch" style="background:#87CEEB;"></span>Biru Muda</td>
+          <td>Sodium Citrate</td>
+          <td>[90, 50, 150]</td>
+          <td>[120, 255, 255]</td>
+          <td>Koagulasi</td>
+        </tr>
+        <tr>
+          <td><span class="color-swatch" style="background:#e74c3c;"></span>Merah</td>
+          <td>Serum (no additive)</td>
+          <td>[0, 120, 100] + [170, 120, 100]</td>
+          <td>[10, 255, 255] + [179, 255, 255]</td>
+          <td>Kimia Klinik</td>
+        </tr>
+        <tr>
+          <td><span class="color-swatch" style="background:#d4a017;"></span>Gold/SST</td>
+          <td>Gel Separator</td>
+          <td>[15, 80, 120]</td>
+          <td>[25, 255, 255]</td>
+          <td>Kimia Klinik</td>
+        </tr>
+        <tr>
+          <td><span class="color-swatch" style="background:#27ae60;"></span>Hijau</td>
+          <td>Heparin</td>
+          <td>[40, 60, 60]</td>
+          <td>[80, 255, 255]</td>
+          <td>Plasma</td>
+        </tr>
+        <tr>
+          <td><span class="color-swatch" style="background:#9b59b6;"></span>Ungu</td>
+          <td>EDTA</td>
+          <td>[130, 50, 60]</td>
+          <td>[165, 255, 255]</td>
+          <td>Hematologi</td>
+        </tr>
+        <tr>
+          <td><span class="color-swatch" style="background:#95a5a6;"></span>Abu-abu</td>
+          <td>Fluoride/Oxalate</td>
+          <td>[0, 0, 60]</td>
+          <td>[179, 40, 190]</td>
+          <td>Glukosa</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12.5px; color:var(--text-dim);">* Range HSV bersifat estimasi dan perlu dikalibrasi sesuai kondisi pencahayaan dan kamera yang digunakan. Merah memerlukan dua range karena wrap-around pada H=0°. [3]</p>
+
+  <h3>Pseudocode Implementasi (Python + OpenCV)</h3>
+  <div class="code-block">
+<code><span class="kw">import</span> cv2
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Definisi HSV range tiap warna cap</span>
+<span class="var">COLOR_RANGES</span> = {
+    <span class="str">"YELLOW"</span>:  ([<span class="num">20</span>,<span class="num">100</span>,<span class="num">100</span>], [<span class="num">35</span>,<span class="num">255</span>,<span class="num">255</span>]),
+    <span class="str">"LIGHT_BLUE"</span>: ([<span class="num">90</span>,<span class="num">50</span>,<span class="num">150</span>], [<span class="num">120</span>,<span class="num">255</span>,<span class="num">255</span>]),
+    <span class="str">"RED"</span>:    ([<span class="num">0</span>,<span class="num">120</span>,<span class="num">100</span>], [<span class="num">10</span>,<span class="num">255</span>,<span class="num">255</span>]),
+    <span class="str">"GOLD"</span>:   ([<span class="num">15</span>,<span class="num">80</span>,<span class="num">120</span>],  [<span class="num">25</span>,<span class="num">255</span>,<span class="num">255</span>]),
+    <span class="str">"GREEN"</span>:  ([<span class="num">40</span>,<span class="num">60</span>,<span class="num">60</span>],   [<span class="num">80</span>,<span class="num">255</span>,<span class="num">255</span>]),
+    <span class="str">"PURPLE"</span>: ([<span class="num">130</span>,<span class="num">50</span>,<span class="num">60</span>],  [<span class="num">165</span>,<span class="num">255</span>,<span class="num">255</span>]),
+    <span class="str">"GRAY"</span>:   ([<span class="num">0</span>,<span class="num">0</span>,<span class="num">60</span>],     [<span class="num">179</span>,<span class="num">40</span>,<span class="num">190</span>])
+}
+
+<span class="kw">def</span> <span class="fn">classify_tube_color</span>(frame):
+    <span class="cm"># 1. Gaussian blur — noise reduction</span>
+    blurred = cv2.<span class="fn">GaussianBlur</span>(frame, (<span class="num">5</span>,<span class="num">5</span>), <span class="num">0</span>)
+    
+    <span class="cm"># 2. Crop ROI (area cap tube) — hardcoded atau dari pose estimation</span>
+    roi = blurred[<span class="var">y1</span>:<span class="var">y2</span>, <span class="var">x1</span>:<span class="var">x2</span>]
+    
+    <span class="cm"># 3. Konversi BGR → HSV</span>
+    hsv = cv2.<span class="fn">cvtColor</span>(roi, cv2.COLOR_BGR2HSV)
+    
+    <span class="cm"># 4. Hitung pixel tiap warna</span>
+    best_label, best_count = <span class="str">"UNKNOWN"</span>, <span class="num">0</span>
+    <span class="kw">for</span> label, (lo, hi) <span class="kw">in</span> COLOR_RANGES.items():
+        mask = cv2.<span class="fn">inRange</span>(hsv, np.<span class="fn">array</span>(lo), np.<span class="fn">array</span>(hi))
+        <span class="cm"># Morphological ops: hilangkan noise</span>
+        mask = cv2.<span class="fn">morphologyEx</span>(mask, cv2.MORPH_OPEN,
+                    np.<span class="fn">ones</span>((<span class="num">5</span>,<span class="num">5</span>), np.uint8))
+        count = cv2.<span class="fn">countNonZero</span>(mask)
+        <span class="kw">if</span> count > best_count:
+            best_count, best_label = count, label
+    
+    <span class="cm"># 5. Confidence threshold — minimal coverage area</span>
+    <span class="kw">if</span> best_count < <span class="num">300</span>:
+        <span class="kw">return</span> <span class="str">"UNKNOWN"</span>
+    <span class="kw">return</span> best_label</code>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ─── SECTION 3: FLOWCHART ─── -->
+  <div class="section-title">Section 03</div>
+  <h2>B. Flowchart Software — Control System</h2>
+
+  <div class="flowchart-section">
+    <div class="fc-container">
+
+      <!-- START -->
+      <div class="fc-wrapper">
+        <div class="fc-node start">▶ SYSTEM START</div>
+      </div>
+      <div class="fc-arrow"><div class="fc-arrow-line"></div><div class="fc-arrow-head"></div></div>
+
+      <!-- INIT -->
+      <div class="fc-wrapper">
+        <div class="fc-node process highlight">
+          Initialize System
+          <div class="sublabel">Camera · Barcode Scanner · Sensors · ESP32</div>
+        </div>
+        <span class="step-annotation">STEP 0: INIT</span>
+      </div>
+      <div class="fc-arrow"><div class="fc-arrow-line"></div><div class="fc-arrow-head"></div></div>
+
+      <!-- WAIT -->
+      <div class="fc-wrapper">
+        <div class="fc-node process">
+          Wait: Tube Detected in Zone
+          <div class="sublabel">Proximity Sensor → HIGH</div>
+        </div>
+        <span class="step-annotation">STEP 1: DETEKSI MASUK</span>
+      </div>
+      <div class="fc-arrow"><div class="fc-arrow-line"></div><div class="fc-arrow-head"></div></div>
+
+      <!-- CAPTURE -->
+      <div class="fc-wrapper">
+        <div class="fc-node process highlight">
+          Capture Image Frame
+          <div class="sublabel">cv2.VideoCapture() · ROI crop</div>
+        </div>
+        <span class="step-annotation">STEP 2: KAMERA</span>
+      </div>
+      <div class="fc-arrow"><div class="fc-arrow-line"></div><div class="fc-arrow-head"></div></div>
+
+      <!-- PREPROCESS -->
+      <div class="fc-wrapper">
+        <div class="fc-node process">
+          Preprocessing
+          <div class="sublabel">Gaussian Blur · BGR→HSV conversion</div>
+        </div>
+        <span class="step-annotation">STEP 3: PREPROCESS</span>
+      </div>
+      <div class="fc-arrow"><div class="fc-arrow-line"></div><div class="fc-arrow-head"></div></div>
+
+      <!-- HSV CLASSIFY -->
+      <div class="fc-wrapper">
+        <div class="fc-node action">
+          HSV Color Classification
+          <div class="sublabel">cv2.inRange() · Morphological ops · Max pixel count</div>
+        </div>
+        <span class="step-annotation">STEP 4: AI / HSV</span>
+      </div>
+      <div class="fc-arrow"><div class="fc-arrow-line"></div><div class="fc-arrow-head"></div></div>
+
+      <!-- DECISION: COLOR KNOWN? -->
+      <div class="fc-wrapper">
+        <div class="fc-node decision">⬡ Color Recognized?</div>
+        <span class="step-annotation">STEP 5: CHECK</span>
+      </div>
+
+      <!-- BRANCH: YES/NO dari color -->
+      <div class="fc-branch">
+        <!-- NO BRANCH: unknown color -->
+        <div class="fc-branch-arm">
+          <div class="arm-label no">NO</div>
+          <div class="fc-arrow-line" style="height:20px; width:2px; background:rgba(239,68,68,0.5);"></div>
+          <div class="fc-node error" style="min-width:170px; font-size:12.5px;">
+            ERROR: Unknown Color
+            <div class="sublabel">Alert → Reject Bin</div>
+          </div>
+          <div style="height:20px; width:2px; background:rgba(239,68,68,0.3); margin-top:0;"></div>
+          <div class="fc-node error" style="min-width:170px; font-size:12.5px; border-radius:20px;">Log Error to System</div>
+        </div>
+        <!-- YES BRANCH: color recognized, continue -->
+        <div class="fc-branch-arm">
+          <div class="arm-label yes">YES</div>
+          <div class="fc-arrow-line" style="height:20px; width:2px; background:rgba(34,197,94,0.5);"></div>
+
+          <!-- BARCODE SCAN -->
+          <div class="fc-node process highlight" style="min-width:220px;">
+            Scan Barcode
+            <div class="sublabel">Patient ID + Test Order</div>
+          </div>
+          <div class="fc-arrow-line" style="height:20px; width:2px; background:rgba(0,201,167,0.5);"></div>
+          <div class="fc-arrow-head" style="border-top-color: rgba(0,201,167,0.6);"></div>
+
+          <!-- DECISION: BARCODE VALID? -->
+          <div class="fc-node decision" style="min-width:190px;">⬡ Barcode Valid?</div>
+
+          <!-- Sub-branch for barcode -->
+          <div class="fc-branch" style="gap:30px; margin-top:8px;">
+            <div class="fc-branch-arm">
+              <div class="arm-label no">NO</div>
+              <div class="fc-arrow-line" style="height:16px; width:2px; background:rgba(239,68,68,0.5);"></div>
+              <div class="fc-node error" style="min-width:150px; font-size:12px; padding:10px 16px;">
+                Alert: Barcode Error
+                <div class="sublabel">Flag tube</div>
+              </div>
+            </div>
+            <div class="fc-branch-arm">
+              <div class="arm-label yes">YES</div>
+              <div class="fc-arrow-line" style="height:16px; width:2px; background:rgba(34,197,94,0.5);"></div>
+
+              <!-- DETERMINE BIN -->
+              <div class="fc-node action" style="min-width:200px;">
+                Determine Target Bin
+                <div class="sublabel">Map color label → bin ID</div>
+              </div>
+              <div class="fc-arrow-line" style="height:16px; width:2px; background:rgba(139,92,246,0.5);"></div>
+              <div class="fc-arrow-head" style="border-top-color: rgba(139,92,246,0.6);"></div>
+
+              <!-- SEND COMMAND -->
+              <div class="fc-node action" style="min-width:200px;">
+                Send Command to ESP32
+                <div class="sublabel">UART / Serial · Target Bin ID</div>
+              </div>
+              <div class="fc-arrow-line" style="height:16px; width:2px; background:rgba(139,92,246,0.5);"></div>
+              <div class="fc-arrow-head" style="border-top-color: rgba(139,92,246,0.6);"></div>
+
+              <!-- CHECK LIMIT SWITCH -->
+              <div class="fc-node decision" style="min-width:190px; font-size:12px;">⬡ Limit Switch OK?</div>
+              <div style="display:flex; gap:20px; margin-top:8px;">
+                <div class="fc-branch-arm">
+                  <div class="arm-label no" style="font-size:10px;">TRIGGERED</div>
+                  <div class="fc-node error" style="min-width:130px; font-size:11.5px; padding:8px 12px;">Emergency Stop</div>
+                </div>
+                <div class="fc-branch-arm">
+                  <div class="arm-label yes" style="font-size:10px;">OK</div>
+                  <div class="fc-arrow-line" style="height:14px; width:2px; background:rgba(34,197,94,0.5);"></div>
+                  <div class="fc-arrow-head" style="border-top-color: rgba(34,197,94,0.6);"></div>
+                  <!-- ARM MOVES -->
+                  <div class="fc-node output" style="min-width:150px; font-size:12px; padding:10px 14px;">
+                    Arm Picks & Places Tube
+                    <div class="sublabel">SCARA · Gripper servo</div>
+                  </div>
+                  <div class="fc-arrow-line" style="height:12px; width:2px; background:rgba(34,197,94,0.5);"></div>
+                  <div class="fc-node output" style="min-width:150px; font-size:12px; padding:10px 14px; border-radius:20px;">
+                    Log: Sorting Complete ✓
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 30px;"></div>
+      <div class="fc-arrow"><div class="fc-arrow-line"></div><div class="fc-arrow-head"></div></div>
+
+      <!-- LOOP BACK -->
+      <div class="fc-wrapper">
+        <div class="fc-node end">↩ Wait for Next Tube</div>
+      </div>
+
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ─── SECTION 4: SOFTWARE ARCH ─── -->
+  <div class="section-title">Section 04</div>
+  <h2>C. Arsitektur Software (Software Architecture)</h2>
+
+  <p>
+    Software berjalan di <strong>Raspberry Pi</strong> sebagai processing unit utama. Seluruh modul sensing dan AI 
+    ditulis dalam Python dengan library OpenCV untuk computer vision. Komunikasi ke ESP32 (motor controller) 
+    dilakukan melalui <strong>UART serial</strong>.
+  </p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">📷</div>
+      <h4>vision_module.py</h4>
+      <p>Bertanggung jawab untuk capture frame, preprocessing (blur, crop ROI), konversi HSV, dan klasifikasi warna cap. Output: color label string.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔖</div>
+      <h4>barcode_module.py</h4>
+      <p>Membaca input dari USB barcode scanner, parsing patient ID, verifikasi dengan lookup table atau LIS (Laboratory Information System).</p>
+    </div>
+    <div class="card yellow">
+      <div class="card-icon">🧠</div>
+      <h4>decision_engine.py</h4>
+      <p>Menerima output dari vision dan barcode, menentukan target bin, serta mengirim perintah ke ESP32 via serial command.</p>
+    </div>
+    <div class="card red">
+      <div class="card-icon">🛡️</div>
+      <h4>safety_monitor.py</h4>
+      <p>Loop independen yang memantau limit switch dan proximity sensor. Jika ada trigger abnormal, langsung kirim emergency stop ke ESP32.</p>
+    </div>
+  </div>
+
+  <h3>Komunikasi Raspberry Pi ↔ ESP32</h3>
+  <div class="code-block">
+<code><span class="cm"># decision_engine.py — mengirim perintah ke ESP32 via UART</span>
+<span class="kw">import</span> serial, json
+
+BIN_MAP = {
+    <span class="str">"YELLOW"</span>: <span class="num">1</span>, <span class="str">"LIGHT_BLUE"</span>: <span class="num">2</span>, <span class="str">"RED"</span>: <span class="num">3</span>,
+    <span class="str">"GOLD"</span>: <span class="num">4</span>,  <span class="str">"GREEN"</span>: <span class="num">5</span>,    <span class="str">"PURPLE"</span>: <span class="num">6</span>, <span class="str">"GRAY"</span>: <span class="num">7</span>
+}
+
+<span class="var">ser</span> = serial.<span class="fn">Serial</span>(<span class="str">'/dev/ttyUSB0'</span>, baudrate=<span class="num">115200</span>, timeout=<span class="num">1</span>)
+
+<span class="kw">def</span> <span class="fn">send_sort_command</span>(color_label, patient_id):
+    bin_id = BIN_MAP.get(color_label, <span class="num">0</span>)  <span class="cm"># 0 = reject</span>
+    cmd = json.<span class="fn">dumps</span>({
+        <span class="str">"action"</span>: <span class="str">"SORT"</span>,
+        <span class="str">"bin_id"</span>: bin_id,
+        <span class="str">"patient_id"</span>: patient_id,
+        <span class="str">"color"</span>: color_label
+    })
+    ser.<span class="fn">write</span>((cmd + <span class="str">"\n"</span>).<span class="fn">encode</span>())
+    ack = ser.<span class="fn">readline</span>().<span class="fn">decode</span>().<span class="fn">strip</span>()
+    <span class="kw">return</span> ack == <span class="str">"OK"</span></code>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ─── SECTION 5: SAFETY ─── -->
+  <div class="section-title">Section 05</div>
+  <h2>D. Safety Control & Error Detection</h2>
+  <p>
+    Sesuai prinsip <em>fail-safe design</em>, sistem dirancang sehingga setiap kondisi error 
+    menyebabkan robot berhenti (safe state), bukan berlanjut dengan data yang salah. 
+    Ini sangat penting dalam konteks medis, di mana sorting yang salah dapat menyebabkan 
+    kesalahan diagnostik yang fatal.
+  </p>
+
+  <div class="card-grid">
+    <div class="card red">
+      <div class="card-icon">🛑</div>
+      <h4>Limit Switch Triggered</h4>
+      <p>Jika joint arm melampaui batas mekanik, limit switch mengirim interrupt ke ESP32 → immediate motor stop. Raspberry Pi juga mendapat notifikasi.</p>
+    </div>
+    <div class="card red">
+      <div class="card-icon">⚠️</div>
+      <h4>Unknown Color / Low Confidence</h4>
+      <p>Jika pixel count di bawah threshold atau tidak ada warna yang match, tube dikirim ke "Reject / Manual Check Bin" dan sistem log alert.</p>
+    </div>
+    <div class="card red">
+      <div class="card-icon">🔍</div>
+      <h4>Barcode Mismatch</h4>
+      <p>Jika barcode tidak terbaca atau patient ID tidak ada dalam sistem, tube di-flag dan ditempatkan terpisah untuk verifikasi manual.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📊</div>
+      <h4>Logging & Audit Trail</h4>
+      <p>Setiap sorting event dicatat dengan timestamp, warna, patient ID, dan bin ID. Mendukung audit lab dan traceback jika ada error di downstream.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ─── REFERENCES ─── -->
+  <div class="section-title">Referensi</div>
+  <h2>Sumber & Jurnal Pendukung</h2>
+  <p>Semua referensi di bawah ini merupakan jurnal/paper kredibel yang open-access atau dapat diakses secara publik:</p>
+
+  <div class="ref-list">
+    <div class="ref-item">
+      <div class="ref-num">[1] · Clinical Chemistry & Laboratory Medicine</div>
+      <strong>Pre-analytical phase errors in clinical laboratories</strong><br>
+      Studi menunjukkan 46–68% error laboratorium berasal dari fase pre-analitik, menjadi landasan pentingnya otomasi pada tahap ini.
+      <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10512411/" target="_blank">PMC10512411 — Frontiers in Medicine (2023)</a>
+    </div>
+    <div class="ref-item">
+      <div class="ref-num">[2] · MDPI Machines (2023) — OPEN ACCESS ✓</div>
+      <strong>Petrov, A. et al. "Robotic System for Blood Serum Aliquoting Based on a Neural Network Model of Machine Vision"</strong><br>
+      Mengimplementasikan HSV + CNN pada OpenCV untuk mendeteksi warna dan level cairan dalam tabung darah. Langsung relevan dengan pendekatan yang dipakai.
+      <a href="https://www.mdpi.com/2075-1702/11/3/349" target="_blank">DOI: 10.3390/machines11030349</a>
+    </div>
+    <div class="ref-item">
+      <div class="ref-num">[3] · Engineering Proceedings (2022) — OPEN ACCESS ✓</div>
+      <strong>"Application of Vision Algorithms to the Problem of Recognizing the Level of Blood in an Aliquoting Tube Biosample"</strong><br>
+      Membahas implementasi algoritma HSV dengan OpenCV (Python) untuk dua skenario: real foto dan live webcam pada tabung biosample.
+      <a href="https://mdpi.com/2673-4591/24/1/17/htm" target="_blank">DOI: 10.3390/engproc2022024017</a>
+    </div>
+    <div class="ref-item">
+      <div class="ref-num">[4] · American Journal of Clinical Pathology (2024) — PubMed</div>
+      <strong>Şişman, A.R. et al. "Measuring the performance of an AI-based robot that classifies blood tubes and performs quality control in terms of preanalytical errors"</strong><br>
+      KANKA robot mencapai akurasi 99.98% dalam menyortir 1000 tabung darah. Validasi empiris bahwa AI dapat diandalkan untuk sorting pre-analitik.
+      <a href="https://pubmed.ncbi.nlm.nih.gov/38284629/" target="_blank">DOI: 10.1093/ajcp/aqad179</a>
+    </div>
+    <div class="ref-item">
+      <div class="ref-num">[5] · PMC / Diagnostics (2024) — OPEN ACCESS ✓</div>
+      <strong>"Revolutionizing Laboratory Practices: Pioneering Trends in Total Laboratory Automation"</strong><br>
+      Review komprehensif tentang integrasi AI, robotics, dan otomasi dalam laboratorium klinik. Background yang kuat untuk justifikasi proyek.
+      <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12370808/" target="_blank">PMC12370808</a>
+    </div>
+    <div class="ref-item">
+      <div class="ref-num">[6] · Roboflow Blog (2024) — Praktis</div>
+      <strong>"Color Sensing with Computer Vision" — Roboflow</strong><br>
+      Penjelasan teknis HSV color space untuk bottle cap detection dalam industrial robotics. Analogi langsung dengan deteksi cap tabung darah.
+      <a href="https://blog.roboflow.com/color-sensing-with-computer-vision/" target="_blank">blog.roboflow.com</a>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span>SENSING & AI SYSTEM · GROUP E · ROBOTIKA MEDIS 2024</span>
+  <span>Alicia Kiyoumi Bastian · 2306168952</span>
+</footer>
+
+</body>
+</html>
